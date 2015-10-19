@@ -2,7 +2,7 @@
 title: "Exponential Distribution Investigation"
 author: "Danny Fraser"
 date: "October 2015"
-output: html_document
+output: word_document
 ---
 ```{r cache=TRUE, echo=FALSE, warning=FALSE}
     # load any required libraries and other setup stuff here
