@@ -48,7 +48,7 @@ The Central Limit Theorem tells us that the sample mean standard deviation ('sta
 
 $\sigma_\bar{x} = \dfrac{\sigma}{\sqrt n}$ i.e. $\sigma_\bar{x}$ = $\frac{1/\lambda}{\sqrt{n}}$
 
-Knowing that the variance is the quare of the standard deviation, we can now calculate the theoretical variance $\sigma^2$:
+Knowing that the variance is the square of the standard deviation, we can now calculate the theoretical variance $\sigma^2$:
 ```{r}
     theoreticalVar = ((1 / lambda) / sqrt(n)) ^ 2
     theoreticalVar
