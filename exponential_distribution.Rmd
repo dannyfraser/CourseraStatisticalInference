@@ -1,0 +1,85 @@
+---
+title: "Exponential Distribution Investigation"
+author: "Danny Fraser"
+date: "October 2015"
+output: html_document
+---
+```{r cache=TRUE, echo=FALSE, warning=FALSE}
+    # load any required libraries and other setup stuff here
+    library(ggplot2)
+    set.seed(678910)
+```
+## Overview
+This paper is an investigation of the exponential distribution, and a comparison of that distribution with the Central Limit Theorem.
+
+The exponential distribution is simulated in R using the `rexp()` function, which takes two parameters: `n` for the number of observations, and `lambda`($\lambda$) for the exponent rate. We will be using $\lambda = 0.2$.
+
+### Simulations
+Our simulations will be of 1000 averages of 40 random samples from the exponential distribution.
+```{r cache=TRUE}
+    sims = 1000
+    n = 40
+    lambda = 0.2
+
+    samples <- matrix(rexp(n * sims, lambda), sims, n)
+    sampleMeans <- rowMeans(samples)
+```
+### Properties of the Exponential Distribution
+```{r, echo=FALSE}
+    #create a histogram, but don't show! We want to get the relative percentages
+    hist(samples, breaks = 20, prob = TRUE, freq = FALSE, col = "red",
+        xlab = "Sample Value", 
+        main = "Shape of Exponential Distribution")
+```
+
+### Sample Mean vs Theoretical
+One of the characteristics of the exponential distribution is that the mean can be given by $1/\lambda$, so in this case we would expect a theoretical population mean $\mu$ to be 5.
+
+We can test this by looking at the distribution of the sample mean, $\bar{X}$, for our 1000 samples of 40 random draws from the distribution:
+
+```{r}
+    mean(sampleMeans)
+```
+
+### Sample Standard Deviation & Variance vs Theoretical
+We also know that the standard deviation $\sigma$ of the distribution is given by $1/\lambda$, which is again 5 for our parameters.
+
+The Central Limit Theorem tells us that the sample mean standard deviation ('standard error of the mean') is equal to the population standard deviation divided by the square root of the sample size:
+
+$\sigma_\bar{x} = \dfrac{\sigma}{\sqrt n}$ i.e. $\sigma_\bar{x}$ = $\frac{1/\lambda}{\sqrt{n}}$
+
+Knowing that the variance is the quare of the standard deviation, we can now calculate the theoretical variance $\sigma^2$:
+```{r}
+    theoreticalVar = ((1 / lambda) / sqrt(n)) ^ 2
+    theoreticalVar
+```
+
+We can calculate the actual variance using R's `var()` function:
+```{r}
+    var(sampleMeans)
+```
+
+We can see that this is close but not exact - a greater number of simulations would be necessary to reduce the difference between these values.
+
+### Distribution of Sample Means vs Theoretical
+Now we can plot a histogram of these sample means to see how they are distributed.
+```{r echo = FALSE}
+    hist(sampleMeans, breaks = 20, prob = TRUE,
+         col = "steelblue", main = "Distribution of Sample Means", xlab = "Sample Mean")
+    # plot the sample mean and distribution
+    lines(density(sampleMeans), col = "red")
+    abline(v = mean(sampleMeans), col = "red", lwd = 2)
+    
+    # plot the theoretical values
+    xfit <- seq(min(sampleMeans), max(sampleMeans), length = 100)
+    yfit <- dnorm(xfit, mean = 1/lambda, sd = 1/lambda/sqrt(n))
+    lines(xfit, yfit, col = "grey")
+    abline(v = 1/lambda, col = "grey", lwd = 2)
+    
+    legend("topright", legend = c("Sample", "Theoretical"), col = c("red", "grey"), lwd = 2)
+
+```
+
+The vertical lines show the sample and theoretical means ($\mu_\bar{x}$ and $\mu$ respectively), and the distributions are the sample distribution and the normal distribution centred around $\mu$.
+
+As can be seen, the sample mean is very close to the theoretical mean, and the distribution of means is approximately normal, consistent with the Central Limit Theorem.
