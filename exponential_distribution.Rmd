@@ -25,7 +25,7 @@ Our simulations will be of 1000 averages of 40 random samples from the exponenti
     sampleMeans <- rowMeans(samples)
 ```
 ### Properties of the Exponential Distribution
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=4}
     #create a histogram, but don't show! We want to get the relative percentages
     hist(samples, breaks = 20, prob = TRUE, freq = FALSE, col = "red",
         xlab = "Sample Value", 
