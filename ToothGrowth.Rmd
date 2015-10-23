@@ -1,0 +1,79 @@
+---
+title: "ToothGrowth"
+author: "Danny Fraser"
+date: "October 2015"
+output: word_document
+---
+```{r echo=FALSE, warning=FALSE, prompt=FALSE, background=TRUE}
+    library(ggplot2)
+    library(dplyr)
+    data(ToothGrowth)
+```
+
+##Summary
+The `ToothGrowth` dataset in R is a small dataset showing the response of tooth length in guinea pigs at three dose levels (0.5, 1, and 2mg) of Vitamin C via 2 delivery methods (orange juice (OJ) or ascorbic acid (VC)).
+
+This paper is a short statistical exploration of this dataset.
+
+
+##Exploration
+A quick exploratory plot of the data shows that the dosage is a more significant contributor to the change in length than the delivery method:
+
+```{r}
+    
+    qplot(data = ToothGrowth, facets = supp ~ dose, 
+        geom = "boxplot", x = 0, y = len,
+        xlab = "", ylab = "Tooth Length")
+```
+
+And in a tabular form:
+```{r echo = FALSE}
+    tbl_df(
+            ToothGrowth %>% 
+                group_by(supp, dose) %>% 
+                summarise(mean(len), observations = n())
+            )
+```
+
+In order to understand the impact that each factor has on the length of the teeth, we will need to apply some statistical tests to the data.
+
+##Statistics
+We are going to find the standard deviation of each group of results and establish with a 95% confidence interval which combination of dose and delivery method is the most effective.
+
+The following table shows the 95% confidence interval upper and lower bounds for each pair of dose and delivery method. The R code is included for clarity (note that the `dplyr` library is used here).
+
+```{r}
+    tgInterval <- ToothGrowth %>% 
+        group_by(supp, dose) %>% 
+        summarise(
+            mean(len), 
+            lower=t.test(len, conf.level = .95)$conf.int[1], 
+            higher=t.test(len, conf.level=.95)$conf.int[2]
+        )
+    print(tbl_df(tgInterval))
+```
+
+## Finding the Most Effective Treatment
+It's clear from this table (and the exploratory boxplot) that the 2mg dose has the gretest effect. It's more difficult, though, to discern which of the delivery methods has the greatest effect at this dose.
+
+First let's take the details of the t-test for both high dose scenarios:
+```{r}
+    OJ_high <- filter(ToothGrowth, supp == "OJ", dose == 2)
+    VC_high <- filter(ToothGrowth, supp == "VC", dose == 2)
+
+    t_data_OJ_high <- t.test(OJ_high$len)
+    t_data_VC_high <- t.test(VC_high$len)
+```
+Now let's take the p-values of each of these. The lower p-value will be the most effective treatment - i.e. it has the lowest probability of having occurred in the null hypothesis.
+
+For the Orange Juice:
+```{r}
+    pt(t_data_OJ_high$statistic, t_data_OJ_high$parameter, lower.tail = FALSE)
+```
+
+And for the Ascorbic Acid:
+```{r}
+    pt(t_data_VC_high$statistic, t_data_VC_high$parameter, lower.tail = FALSE)
+```
+
+Both are extremely small vlaues, but this test shows that the Orange Juice delivery method is marginally more effective than the Ascorbic Acid.
